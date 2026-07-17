@@ -21,10 +21,12 @@ class SST : public IFrontEnd, public Implementation {
       m_memory_system->tick();
     };
 
-    // Cleaned 5-parameter override matching i_frontend.h exactly
-    bool receive_external_requests(int req_type_id, Addr_t addr, int source_id, int size_bytes, std::function<void(Request&)> callback) override {
+// Updated 6-parameter override matching frontend.h exactly
+    bool receive_external_requests(int req_type_id, Addr_t addr, int source_id, 
+                                   int size_bytes, std::function<void(Request&)> callback, 
+                                   bool is_sst) override {
       Request req{addr, req_type_id, source_id, callback};
-      req.size_bytes = size_bytes; // <-- CRITICAL: Assign the size so Ramulator doesn't crash!
+      req.size_bytes = size_bytes; 
       return m_memory_system->send(req);
     }
 
