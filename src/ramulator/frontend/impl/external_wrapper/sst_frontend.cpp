@@ -1,3 +1,5 @@
+// Goes at: /sst-elements/src/sst/elements/memHierarchy/membackend/ramulator2/sst_frontend.cpp
+
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -19,20 +21,10 @@ class SST : public IFrontEnd, public Implementation {
       m_memory_system->tick();
     };
 
-    // 4-parameter convenience overload for legacy SST backends
-    bool receive_external_requests(int req_type_id, Addr_t addr, int source_id, std::function<void(Request&)> callback) {
-      return receive_external_requests(req_type_id, addr, source_id, callback, 64);
-    }
-
-    // 5-parameter override matching i_frontend.h
-    bool receive_external_requests(int req_type_id, Addr_t addr, int source_id, std::function<void(Request&)> callback, int size_bytes) override {
+    // Cleaned 5-parameter override matching i_frontend.h exactly
+    bool receive_external_requests(int req_type_id, Addr_t addr, int source_id, int size_bytes, std::function<void(Request&)> callback) override {
       Request req{addr, req_type_id, source_id, callback};
-      return m_memory_system->send(req);
-    }
-
-    // 6-parameter override matching i_frontend.h
-    bool receive_external_requests(int req_type_id, Addr_t addr, int source_id, int ingress_id, std::function<void(Request&)> callback, int size_bytes) override {
-      Request req{addr, req_type_id, source_id, callback};
+      req.size_bytes = size_bytes; // <-- CRITICAL: Assign the size so Ramulator doesn't crash!
       return m_memory_system->send(req);
     }
 
