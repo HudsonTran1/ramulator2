@@ -67,24 +67,17 @@ class IFrontEnd : public TopLevel<IFrontEnd> {
   };
 
   /**
-   * @brief    Receives memory requests from external sources (e.g., coming from a full system simulator like GEM5)
+   * @brief     Receives memory requests from external sources (e.g., coming from a full system simulator like SST or GEM5)
    *
    * @details
-   * This functions should take memory requests from external sources (e.g., coming from GEM5), generate Ramulator 2
-   * Requests, (tries to) send to the memory system, and return if this is successful
+   * This function takes memory requests from external sources, generates Ramulator 2
+   * Requests, sends them to the memory system, and returns if this is successful.
    *
+   * Fixed signature: accepts size_bytes cleanly before the callback parameter.
    */
   virtual bool receive_external_requests(int req_type_id, Addr_t addr, int source_id,
-                                         std::function<void(Request&)> callback,
-                                         int size_bytes) {
-    return receive_external_requests(req_type_id, addr, source_id, -1,
-                                     std::move(callback), size_bytes);
-  }
-
-  virtual bool receive_external_requests(int req_type_id, Addr_t addr, int source_id,
-                                         int ingress_id,
-                                         std::function<void(Request&)> callback,
-                                         int size_bytes) {
+                                         int size_bytes,
+                                         std::function<void(Request&)> callback) {
     return false;
   }
 };
