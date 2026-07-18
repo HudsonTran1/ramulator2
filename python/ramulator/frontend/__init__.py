@@ -10,6 +10,5 @@ from .latency_throughput_trace import LatencyThroughputTrace
 from .load_store_trace import LoadStoreTrace
 from .read_write_trace import ReadWriteTrace
 from .simple_o3 import SimpleO3
-from .sst import SST
 
-__all__ = ['BHO3', 'External', 'LatencyThroughputTrace', 'LoadStoreTrace', 'ReadWriteTrace', 'SST', 'SimpleO3']
+__all__ = ['BHO3', 'External', 'LatencyThroughputTrace', 'LoadStoreTrace', 'ReadWriteTrace', 'SimpleO3']
