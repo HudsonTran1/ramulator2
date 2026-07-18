@@ -1,5 +1,3 @@
-// Goes at: /sst-elements/src/sst/elements/memHierarchy/membackend/ramulator2/sst_frontend.cpp
-
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -15,13 +13,20 @@ class SST : public IFrontEnd, public Implementation {
   RAMULATOR_REGISTER_IMPLEMENTATION(IFrontEnd, SST, "SST")
 
   public:
+    // FIX: Match Ramulator 2's expected 4-argument Factory constructor signature
+    SST(const ConfigNode& config, std::string name, std::string id, Implementation* parent)
+        : Implementation(config, "frontend", name, parent) 
+    {
+      // Safely link the internal implementation tracker to this class
+      m_impl = this;
+    }
+
     void init() override {};
 
     void tick() override {
-      m_memory_system->tick();
+      // Driven explicitly in the SST backend file to maintain precise sync.
     };
 
-// Updated 6-parameter override matching frontend.h exactly
     bool receive_external_requests(int req_type_id, Addr_t addr, int source_id, 
                                    int size_bytes, std::function<void(Request&)> callback, 
                                    bool is_sst) override {
