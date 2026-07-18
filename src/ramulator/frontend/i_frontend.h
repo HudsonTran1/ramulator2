@@ -1,5 +1,3 @@
-// Goes at your Ramulator2 header location
-
 #ifndef RAMULATOR_FRONTEND_I_FRONTEND_H
 #define RAMULATOR_FRONTEND_I_FRONTEND_H
 
@@ -24,6 +22,8 @@ class IFrontEnd : public TopLevel<IFrontEnd> {
   unsigned int m_clock_ratio = 1;
 
  public:
+  // Calls setup() on m_impl first, then on all gathered child components.
+  // Important: setup() implementations must NOT recursively call children's setup().
   virtual void connect_memory_system(IMemorySystem* memory_system) {
     m_memory_system = memory_system;
     m_impl->setup(this, memory_system);
@@ -58,29 +58,33 @@ class IFrontEnd : public TopLevel<IFrontEnd> {
   void print_stats(std::ostream& os) { m_impl->print_stats(os); }
   ConfigNode collect_stats() const { return m_impl->collect_stats(); }
 
-  virtual int get_num_cores() { return 1; };
-  int get_clock_ratio() { return m_clock_ratio; };
+  virtual int get_num_cores() {
+    return 1;
+  };
 
-// 1. Updated SST signature: Added a dummy bool at the end to make it a distinct 6-argument call
+  int get_clock_ratio() {
+    return m_clock_ratio;
+  };
+
+  /**
+   * @brief    Receives memory requests from external sources (e.g., coming from a full system simulator like GEM5)
+   *
+   * @details
+   * This functions should take memory requests from external sources (e.g., coming from GEM5), generate Ramulator 2
+   * Requests, (tries to) send to the memory system, and return if this is successful
+   *
+   */
   virtual bool receive_external_requests(int req_type_id, Addr_t addr, int source_id,
-                                         int size_bytes,
                                          std::function<void(Request&)> callback,
-                                         bool is_sst) {
-    return false;
+                                         int size_bytes) {
+    return receive_external_requests(req_type_id, addr, source_id, -1,
+                                     std::move(callback), size_bytes);
   }
 
-  // 2. Native Ramulator 2 signature 1 (5 arguments)
   virtual bool receive_external_requests(int req_type_id, Addr_t addr, int source_id,
+                                         int ingress_id,
                                          std::function<void(Request&)> callback,
-                                         int external_arg = 0) {
-    return false;
-  }
-
-  // 3. Native Ramulator 2 signature 2 (6 arguments - but matching types don't clash)
-  virtual bool receive_external_requests(int req_type_id, Addr_t addr, int source_id,
-                                         int extra_id,
-                                         std::function<void(Request&)> callback,
-                                         int external_arg = 0) {
+                                         int size_bytes) {
     return false;
   }
 };
