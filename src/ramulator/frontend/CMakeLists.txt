@@ -1,17 +1,10 @@
 add_library(ramulator-frontend OBJECT)
 
-target_include_directories(ramulator-frontend PRIVATE
-  ${CMAKE_SOURCE_DIR}/src/ramulator
-  ${CMAKE_SOURCE_DIR}/src
-)
-
 target_sources(
   ramulator-frontend PRIVATE
   i_frontend.h
 
   impl/external.cpp
-  impl/external_wrapper/sst_frontend.cpp
-
   impl/memory_trace/loadstore_trace.cpp
   impl/memory_trace/readwrite_trace.cpp
   impl/memory_trace/latency_throughput_trace.cpp
