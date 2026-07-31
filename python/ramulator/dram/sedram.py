@@ -89,11 +89,12 @@ class SeDRAM(DRAMStandard):
         # 4-activation window restriction
         TimingConstraint(level="Channel", preceding=["ACT"], following=["ACT"], latency="nFAW", window=4),
 
-        TimingConstraint(level="Channel", preceding=["ACT"], following=["REFpb", "RFMpb"], latency="nRRDS"),
+        # ACT happens on the 2nd cycle of ACT, so +1 cycle to nRRDS
+        TimingConstraint(level="Channel", preceding=["ACT"], following=["REFpb", "RFMpb"], latency="nRRDS + 1"),
         # nRREFD is the latency between REFpb <-> REFpb to *different* banks
         TimingConstraint(level="Channel", preceding=["REFpb", "RFMpb"], following=["REFpb", "RFMpb"], latency="nRREFD"),
-        # nRREFD is the latency between REFpb <-> ACT to *different* banks
-        TimingConstraint(level="Channel", preceding=["REFpb", "RFMpb"], following=["ACT"], latency="nRREFD"),
+        # nRREFD is the latency between REFpb <-> ACT to *different* banks. -1 as ACT happens on its 2nd cycle
+        TimingConstraint(level="Channel", preceding=["REFpb", "RFMpb"], following=["ACT"], latency="nRREFD - 1"),
 
         # RAS <-> PREab / PREab <-> RAS at channel scope
         TimingConstraint(level="Channel", preceding=["ACT"], following=["PREab"], latency="nRAS"),
@@ -119,8 +120,8 @@ class SeDRAM(DRAMStandard):
         TimingConstraint(level="BankGroup", preceding=["WR", "WRA"], following=["RD", "RDA"], latency="nCWL + nBL + nWTRL"),
         # RAS <-> RAS
         TimingConstraint(level="BankGroup", preceding=["ACT"], following=["ACT"], latency="nRRDL"),
-        TimingConstraint(level="BankGroup", preceding=["ACT"], following=["REFpb", "RFMpb"], latency="nRRDL"),
-        TimingConstraint(level="BankGroup", preceding=["REFpb", "RFMpb"], following=["ACT"], latency="nRRDL"),
+        TimingConstraint(level="BankGroup", preceding=["ACT"], following=["REFpb", "RFMpb"], latency="nRRDL + 1"),
+        TimingConstraint(level="BankGroup", preceding=["REFpb", "RFMpb"], following=["ACT"], latency="nRRDL - 1"),
 
         # ============================================================
         # Bank
