@@ -19,5 +19,6 @@ from .hbm3 import HBM3
 from .hbm4 import HBM4
 from .lpddr5 import LPDDR5
 from .lpddr6 import LPDDR6
+from .sedram import SeDRAM
 
-__all__ = ['DDR3', 'DDR4', 'DDR4_VRR', 'DDR5', 'DDR5_RFM', 'DDR5_RFM_VRR', 'DDR5_VRR', 'GDDR6', 'GDDR7', 'HBM1', 'HBM2', 'HBM3', 'HBM4', 'LPDDR5', 'LPDDR6']
+__all__ = ['DDR3', 'DDR4', 'DDR4_VRR', 'DDR5', 'DDR5_RFM', 'DDR5_RFM_VRR', 'DDR5_VRR', 'GDDR6', 'GDDR7', 'HBM1', 'HBM2', 'HBM3', 'HBM4', 'LPDDR5', 'LPDDR6', 'SeDRAM']

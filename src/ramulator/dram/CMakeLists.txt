@@ -22,6 +22,7 @@ target_sources(
   commands/VRR.h
   commands/populate.h
 
+  impl/SeDRAM.cpp
   impl/DDR3.cpp
   impl/DDR4.cpp
   impl/DDR4_VRR.cpp
