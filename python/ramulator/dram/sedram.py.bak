@@ -84,27 +84,28 @@ class SeDRAM(DRAMStandard):
         # ============================================================
         # Channel
         # ============================================================
-        # RAS <-> RAS (ACT precede +1, ACT follow -1 cancel out automatically)
+        # RAS <-> RAS
         TimingConstraint(level="Channel", preceding=["ACT"], following=["ACT"], latency="nRRDS"),
+        # 4-activation window restriction
         TimingConstraint(level="Channel", preceding=["ACT"], following=["ACT"], latency="nFAW", window=4),
 
-        # Generator auto-adds +1 for ACT preceding; no manual +1 needed
-        TimingConstraint(level="Channel", preceding=["ACT"], following=["REFpb", "RFMpb"], latency="nRRDS"),
+        # ACT happens on the 2nd cycle of ACT, so +1 cycle to nRRDS
+        TimingConstraint(level="Channel", preceding=["ACT"], following=["REFpb", "RFMpb"], latency="nRRDS + 1"),
+        # nRREFD is the latency between REFpb <-> REFpb to *different* banks
         TimingConstraint(level="Channel", preceding=["REFpb", "RFMpb"], following=["REFpb", "RFMpb"], latency="nRREFD"),
-        # Generator auto-subtracts 1 for ACT following; no manual -1 needed
-        TimingConstraint(level="Channel", preceding=["REFpb", "RFMpb"], following=["ACT"], latency="nRREFD"),
+        # nRREFD is the latency between REFpb <-> ACT to *different* banks. -1 as ACT happens on its 2nd cycle
+        TimingConstraint(level="Channel", preceding=["REFpb", "RFMpb"], following=["ACT"], latency="nRREFD - 1"),
 
-        # Compensate for generator's automatic ACT offset (cpp wants no adjustment here)
-        TimingConstraint(level="Channel", preceding=["ACT"], following=["PREab"], latency="nRAS - 1"),
-        TimingConstraint(level="Channel", preceding=["PREab"], following=["ACT"], latency="nRP + 1"),
+        # RAS <-> PREab / PREab <-> RAS at channel scope
+        TimingConstraint(level="Channel", preceding=["ACT"], following=["PREab"], latency="nRAS"),
+        TimingConstraint(level="Channel", preceding=["PREab"], following=["ACT"], latency="nRP"),
 
-        TimingConstraint(level="Channel", preceding=["ACT"], following=["REFab", "RFMab"], latency="nRC - 1"),
+        # RAS <-> REF
+        TimingConstraint(level="Channel", preceding=["ACT"], following=["REFab", "RFMab"], latency="nRC"),
         TimingConstraint(level="Channel", preceding=["PREpb", "PREab"], following=["REFab", "RFMab"], latency="nRP"),
         TimingConstraint(level="Channel", preceding=["RDA"], following=["REFab", "RFMab"], latency="nRP + nRTPS"),
         TimingConstraint(level="Channel", preceding=["WRA"], following=["REFab", "RFMab"], latency="nCWL + nBL + nWR + nRP"),
-        # Split: ACT branch needs +1 to counter the generator's -1; REFpb/RFMpb branch needs none
-        TimingConstraint(level="Channel", preceding=["REFab", "RFMab"], following=["ACT"], latency="nRFC + 1"),
-        TimingConstraint(level="Channel", preceding=["REFab", "RFMab"], following=["REFpb", "RFMpb"], latency="nRFC"),
+        TimingConstraint(level="Channel", preceding=["REFab", "RFMab"], following=["ACT", "REFpb", "RFMpb"], latency="nRFC"),
 
         # CAS drain before precharge-all
         TimingConstraint(level="Channel", preceding=["RD"], following=["PREab"], latency="nRTPS"),
@@ -117,12 +118,10 @@ class SeDRAM(DRAMStandard):
         TimingConstraint(level="BankGroup", preceding=["RD", "RDA"], following=["RD", "RDA"], latency="nCCDL"),
         TimingConstraint(level="BankGroup", preceding=["WR", "WRA"], following=["WR", "WRA"], latency="nCCDL"),
         TimingConstraint(level="BankGroup", preceding=["WR", "WRA"], following=["RD", "RDA"], latency="nCWL + nBL + nWTRL"),
-        # RAS <-> RAS (ACT precede +1, ACT follow -1 cancel out automatically)
+        # RAS <-> RAS
         TimingConstraint(level="BankGroup", preceding=["ACT"], following=["ACT"], latency="nRRDL"),
-        # Generator auto-adds +1 for ACT preceding; no manual +1 needed
-        TimingConstraint(level="BankGroup", preceding=["ACT"], following=["REFpb", "RFMpb"], latency="nRRDL"),
-        # Generator auto-subtracts 1 for ACT following; no manual -1 needed
-        TimingConstraint(level="BankGroup", preceding=["REFpb", "RFMpb"], following=["ACT"], latency="nRRDL"),
+        TimingConstraint(level="BankGroup", preceding=["ACT"], following=["REFpb", "RFMpb"], latency="nRRDL + 1"),
+        TimingConstraint(level="BankGroup", preceding=["REFpb", "RFMpb"], following=["ACT"], latency="nRRDL - 1"),
 
         # ============================================================
         # Bank
@@ -134,20 +133,15 @@ class SeDRAM(DRAMStandard):
         TimingConstraint(level="Bank", preceding=["RD", "RDA"], following=["WR", "WRA"], latency="nCL + nBL + 2 - nCWL"),
         TimingConstraint(level="Bank", preceding=["WR", "WRA"], following=["RD", "RDA"], latency="nCWL + nBL + nWTRS"),
 
-        # ACT precede +1, ACT follow -1 cancel out automatically
         TimingConstraint(level="Bank", preceding=["ACT"], following=["ACT"], latency="nRC"),
-        # Compensate for generator's automatic +1 (cpp wants no adjustment here)
-        TimingConstraint(level="Bank", preceding=["ACT"], following=["RD", "RDA"], latency="nRCDRD - 1"),
-        TimingConstraint(level="Bank", preceding=["ACT"], following=["WR", "WRA"], latency="nRCDWR - 1"),
-        TimingConstraint(level="Bank", preceding=["ACT"], following=["PREpb"], latency="nRAS - 1"),
-        TimingConstraint(level="Bank", preceding=["PREpb"], following=["ACT"], latency="nRP + 1"),
+        TimingConstraint(level="Bank", preceding=["ACT"], following=["RD", "RDA"], latency="nRCDRD"),
+        TimingConstraint(level="Bank", preceding=["ACT"], following=["WR", "WRA"], latency="nRCDWR"),
+        TimingConstraint(level="Bank", preceding=["ACT"], following=["PREpb"], latency="nRAS"),
+        TimingConstraint(level="Bank", preceding=["PREpb"], following=["ACT"], latency="nRP"),
         TimingConstraint(level="Bank", preceding=["RD"], following=["PREpb"], latency="nRTPL"),
         TimingConstraint(level="Bank", preceding=["WR"], following=["PREpb"], latency="nCWL + nBL + nWR"),
-        # Split: ACT branch needs +1 to counter the generator's -1; REFpb/RFMpb branch needs none
-        TimingConstraint(level="Bank", preceding=["RDA"], following=["ACT"], latency="nRTPL + nRP + 1"),
-        TimingConstraint(level="Bank", preceding=["RDA"], following=["REFpb", "RFMpb"], latency="nRTPL + nRP"),
-        TimingConstraint(level="Bank", preceding=["WRA"], following=["ACT"], latency="nCWL + nBL + nWR + nRP + 1"),
-        TimingConstraint(level="Bank", preceding=["WRA"], following=["REFpb", "RFMpb"], latency="nCWL + nBL + nWR + nRP"),
+        TimingConstraint(level="Bank", preceding=["RDA"], following=["ACT", "REFpb", "RFMpb"], latency="nRTPL + nRP"),
+        TimingConstraint(level="Bank", preceding=["WRA"], following=["ACT", "REFpb", "RFMpb"], latency="nCWL + nBL + nWR + nRP"),
     ]
 
     # ---- Secondary timing resolution ----
