@@ -34,6 +34,21 @@ What has changed from Ramulator 2.0:
 - Significantly improved the ease of use, configuration, and extension
 - Overall code quality improvements
 
+If you use Ramulator 2.1/2.0 in your work, please use the following citations:
+```
+@misc{luo2026ramulator2.1,
+	title        = {{Ramulator 2.1: A Composable Memory System Simulator for Modern DRAM Systems}},
+	author       = {Luo, Haocong and Bostanc{\i}, F. Nisa and Olgun, Ataberk and Makeenkova, Maria and Malik, Ziad and Akdeniz, Ipek and Mutlu, Onur},
+	year         = 2026,
+	howpublished = {The 3rd Tutorial on Ramulator and DRAM Bender colocated with ICS}
+}
+@article{luo2024ramulator2.0,
+	title   = {{Ramulator 2.0: A Modern, Modular, and Extensible DRAM Simulator}},
+	author  = {Luo, Haocong and Tu{\u{g}}rul, Yahya Can and Bostanc{\i}, F. Nisa and Olgun, Ataberk and Ya{\u{g}}l{\i}k{\c{c}}{\i}, A. Giray and Mutlu, Onur},
+	year    = 2024,
+	journal = {IEEE Computer Architecture Letters}
+}
+```
 ### 1.2 Repository Layout
 
 - `src/`
@@ -55,7 +70,7 @@ We highly recommend to use our container (Dockerfile available at `.devcontainer
 
 If you want to set up the container locally, you can do the following steps:
 ```bash
-docker compose up -d --build
+docker compose up -d --build --wait
 docker compose exec ramulator2 bash
 ```
 Doing so creates a container with all the dependencies, mounts the Ramulator 2.1 repository at `/workspace`, and automatically activates `ramulator2-venv` in the container bash.
@@ -139,6 +154,14 @@ After building, install the Python package in editable mode so that `python -m r
 ```bash
 pip install -e .
 ```
+
+If you encounter issues installing the Python package, please create a virtual environment first, activate the venv, and then install again
+
+```bash
+python3 -m venv ramulator2-venv
+source ramulator2-venv/bin/activate
+```
+
 
 Then run examples directly:
 
